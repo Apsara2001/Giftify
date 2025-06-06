@@ -12,7 +12,16 @@ import {
   ImageBackground,
   Animated,
 } from 'react-native';
-import { MaterialIcons, FontAwesome, Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import {
+  MaterialIcons,
+  FontAwesome,
+  Ionicons,
+  Entypo,
+  AntDesign,
+} from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +48,7 @@ const images = {
   phonecase: require('../../assets/case.jpg'),
   book: require('../../assets/book.jpg'),
   makeup: require('../../assets/makeup.jpg'),
-  neckless: require('../../assets/neckless.jpg')
+  neckless: require('../../assets/neckless.jpg'),
 };
 
 const categories = [
@@ -51,7 +60,7 @@ const categories = [
   { id: '6', name: 'Phone Cases', image: images.phonecase },
   { id: '7', name: 'Books', image: images.book },
   { id: '8', name: 'Makeup', image: images.makeup },
-    { id: '9', name: 'Necklaces', image: images.neckless },
+  { id: '9', name: 'Necklaces', image: images.neckless },
 ];
 
 const renderCategoryItem = ({ item }) => (
@@ -63,6 +72,7 @@ const renderCategoryItem = ({ item }) => (
 
 const HomeScreen = () => {
   const logoScale = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
 
   useEffect(() => {
     Animated.spring(logoScale, {
@@ -87,14 +97,29 @@ const HomeScreen = () => {
           <Text style={styles.logoText}>GIFTIFY</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('WishListScreen')}>
             <FontAwesome name="heart-o" size={24} color={colors.darkText} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('CartScreen')}>
             <FontAwesome name="shopping-cart" size={24} color={colors.darkText} />
             <View style={styles.cartBadge}>
               <Text style={styles.cartBadgeText}>2</Text>
             </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={async()=>{
+            try{
+              const userId=await AsyncStorage.getItem("userId");
+              if(userId){
+                navigation.navigate("ProfileScreen");
+              }else{
+                navigation.navigate("RegisterScreen");
+              }
+            }catch(error){
+              console.error("Error accessing local storage: ",error);
+              navigation.navigate("RegisterScreen");
+            }
+          }}>
+            <FontAwesome name="user" size={24} color={colors.darkText} />
           </TouchableOpacity>
         </View>
       </View>
@@ -181,6 +206,7 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  // all your styles remain unchanged...
   container: {
     flex: 1,
     backgroundColor: colors.background,
